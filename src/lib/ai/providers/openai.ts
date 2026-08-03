@@ -29,7 +29,7 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
   // Si el usuario no especificó un modelo o viene el de fábrica,
   // forzamos un modelo potente y 100% gratuito de OpenRouter (Llama 3 de Meta)
     const targetModel = model.includes('gpt') 
-      ? 'google/gemma-2-9b-it:free' 
+      ? 'openrouter/free'
       : model
 
 
