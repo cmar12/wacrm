@@ -1,7 +1,7 @@
 import { AiError, type ProviderResult } from '../types'
 import { normalizeUsage, providerHttpError, toNetworkError, type ProviderArgs } from './shared'
 
-// Mantenemos tu modelo exacto que dio éxito total en la prueba anterior
+// Tu modelo exacto ganador
 const OPENAI_URL = 'https://googleapis.com'
 
 interface GeminiResponse {
@@ -52,6 +52,8 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data = (await res.json().catch(() => null)) as GeminiResponse | any
+  
+  // Tu línea exacta original reparada de sintaxis
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
 
   if (!text || typeof text !== 'string' || !text.trim()) {
@@ -60,7 +62,7 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
     })
   }
 
-  // Corregimos los nombres de los tokens para adaptarlos al formato real de Google AI Studio
+  // Conteo de tokens real de Google AI Studio
   const usage = normalizeUsage({
     prompt: data?.usageMetadata?.promptTokenCount ?? 0,
     completion: data?.usageMetadata?.candidatesTokenCount ?? 0,
