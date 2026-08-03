@@ -1,7 +1,7 @@
 import { AiError, type ProviderResult } from '../types'
 import { normalizeUsage, providerHttpError, toNetworkError, type ProviderArgs } from './shared'
 
-const OPENAI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
+const OPENAI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-latest:generateContent'
 
 interface GeminiResponse {
   candidates?: { content?: { parts?: { text?: string }[] } }[]
