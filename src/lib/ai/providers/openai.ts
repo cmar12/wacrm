@@ -33,27 +33,28 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
       : model
 
 
-  let res: Response
-  try {
-    res = await fetch(OPENAI_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://vercel.app', // Identificación del CRM
-        'X-Title': 'WACRM Universidad',
-      },
-      body: JSON.stringify({
-        model: targetModel,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...mergeConsecutive(messages),
-        ],
-        max_tokens: MAX_OUTPUT_TOKENS, // Ajustado para compatibilidad con OpenRouter
-      }),
-      signal: AbortSignal.timeout(timeoutMs),
-    })
-  } catch (err) {
+    let res: Response
+    try {
+      res = await fetch(OPENAI_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://vercel.app', // Tu sitio web real
+          'X-Title': 'WACRM Universidad', // Nombre de tu app universitaria
+        },
+        body: JSON.stringify({
+          model: targetModel,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...mergeConsecutive(messages),
+          ],
+          max_tokens: MAX_OUTPUT_TOKENS,
+        }),
+        signal: AbortSignal.timeout(timeoutMs),
+      })
+    } catch (err) {
+
     throw toNetworkError(err)
   }
 
