@@ -1,8 +1,8 @@
 import { AiError, type ProviderResult } from '../types'
 import { normalizeUsage, providerHttpError, toNetworkError, type ProviderArgs } from './shared'
 
-// Tu modelo exacto ganador
-const OPENAI_URL = 'https://googleapis.com'
+// Usamos el modelo exacto que te funcionó de forma exitosa en la prueba anterior
+const OPENAI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent'
 
 interface GeminiResponse {
   candidates?: { content?: { parts?: { text?: string }[] } }[]
@@ -52,8 +52,6 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data = (await res.json().catch(() => null)) as GeminiResponse | any
-  
-  // Tu línea exacta original reparada de sintaxis
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
 
   if (!text || typeof text !== 'string' || !text.trim()) {
@@ -62,7 +60,7 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
     })
   }
 
-  // Conteo de tokens real de Google AI Studio
+  // Corregimos los nombres de los tokens para adaptarlos al formato real de Google AI Studio
   const usage = normalizeUsage({
     prompt: data?.usageMetadata?.promptTokenCount ?? 0,
     completion: data?.usageMetadata?.candidatesTokenCount ?? 0,
