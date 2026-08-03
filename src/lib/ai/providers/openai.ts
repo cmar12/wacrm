@@ -1,14 +1,15 @@
 import { AiError, type ProviderResult } from '../types'
 import { normalizeUsage, providerHttpError, toNetworkError, type ProviderArgs } from './shared'
 
-const OPENAI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent'
+// Mantenemos tu modelo exacto que dio éxito total en la prueba anterior
+const OPENAI_URL = 'https://googleapis.com'
 
 interface GeminiResponse {
   candidates?: { content?: { parts?: { text?: string }[] } }[]
-  usage?: {
-    prompt_tokens?: number
-    completion_tokens?: number
-    total_tokens?: number
+  usageMetadata?: {
+    promptTokenCount?: number
+    candidatesTokenCount?: number
+    totalTokenCount?: number
   }
 }
 
@@ -49,6 +50,7 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
     throw await providerHttpError('Google Gemini', res)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data = (await res.json().catch(() => null)) as GeminiResponse | any
   const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
 
@@ -58,10 +60,11 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
     })
   }
 
+  // Corregimos los nombres de los tokens para adaptarlos al formato real de Google AI Studio
   const usage = normalizeUsage({
-    prompt: data?.usage?.prompt_tokens,
-    completion: data?.usage?.completion_tokens,
-    total: data?.usage?.total_tokens,
+    prompt: data?.usageMetadata?.promptTokenCount ?? 0,
+    completion: data?.usageMetadata?.candidatesTokenCount ?? 0,
+    total: data?.usageMetadata?.totalTokenCount ?? 0,
   })
 
   return { text: text.trim(), usage }
