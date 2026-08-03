@@ -28,9 +28,10 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
 
   // Si el usuario no especificó un modelo o viene el de fábrica,
   // forzamos un modelo potente y 100% gratuito de OpenRouter (Llama 3 de Meta)
-  const targetModel = model.includes('gpt') 
-    ? 'meta-llama/llama-3-8b-instruct:free' 
-    : model
+    const targetModel = model.includes('gpt') 
+      ? 'openrouter/auto' 
+      : model
+
 
   let res: Response
   try {
