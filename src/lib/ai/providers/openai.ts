@@ -1,7 +1,7 @@
 import { AiError, type ProviderResult } from '../types'
 import { normalizeUsage, providerHttpError, toNetworkError, type ProviderArgs } from './shared'
 
-// Usamos el modelo exacto que te funcionó de forma exitosa en la prueba anterior
+// Tu modelo exacto ganador y vigente
 const OPENAI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent'
 
 interface GeminiResponse {
@@ -14,10 +14,19 @@ interface GeminiResponse {
 }
 
 /**
- * Call Google Gemini using the native API format.
+ * Call Google Gemini using the native API format with clean message mapping.
  */
 export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult> {
   const { apiKey, systemPrompt, messages, timeoutMs } = args
+
+  // Filtramos y limpiamos los mensajes para asegurarnos de que Google no reciba campos rotos o vacíos
+  const cleanHistory = (messages || [])
+    .map((m) => {
+      const role = m.role === 'assistant' ? 'model' : 'user'
+      const content = typeof m.content === 'string' ? m.content : JSON.stringify(m.content || '')
+      return `${role}: ${content}`
+    })
+    .join('\n')
 
   let res: Response
   try {
@@ -32,9 +41,7 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
           {
             parts: [
               {
-                text: `${systemPrompt}\n\n${messages
-                  .map((m) => `${m.role}: ${m.content}`)
-                  .join('\n')}`,
+                text: `${systemPrompt}\n\nHistorial de conversación:\n${cleanHistory}`,
               },
             ],
           },
@@ -60,7 +67,7 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
     })
   }
 
-  // Corregimos los nombres de los tokens para adaptarlos al formato real de Google AI Studio
+  // Conteo seguro de tokens para que el Inbox nunca se quede colgado
   const usage = normalizeUsage({
     prompt: data?.usageMetadata?.promptTokenCount ?? 0,
     completion: data?.usageMetadata?.candidatesTokenCount ?? 0,
