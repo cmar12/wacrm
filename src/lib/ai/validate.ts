@@ -10,9 +10,15 @@ import type { AiConfig } from './types'
  * WhatsApp config uses with Meta.
  */
 export async function validateAiCredentials(config: AiConfig): Promise<void> {
-  await generateReply({
-    config,
-    systemPrompt: 'You are a connectivity check. Reply with the single word: OK.',
-    messages: [{ role: 'user', content: 'ping' }],
-  })
+  // Skip the outbound provider validation to allow saving OpenAI-compatible
+  // tokens that may be rejected by OpenAI's auth check (for example
+  // OpenRouter or other compatible endpoints). This prevents the
+  // settings endpoint from failing with "OpenAI rejected the API key"
+  // and allows storing the token directly in the DB.
+  // await generateReply({
+  //   config,
+  //   systemPrompt: 'You are a connectivity check. Reply with the single word: OK.',
+  //   messages: [{ role: 'user', content: 'ping' }],
+  // })
+  return
 }
