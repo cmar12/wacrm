@@ -1,6 +1,5 @@
 import { AiError, type ProviderResult } from '../types'
-import { normalizeUsage } from '../shared'
-import { providerHttpError, toNetworkError, type ProviderArgs } from './shared'
+import { normalizeUsage, providerHttpError, toNetworkError, type ProviderArgs } from './shared'
 
 const OPENAI_URL = 'https://googleapis.com'
 
