@@ -62,9 +62,47 @@ export async function generateOpenAi(args: ProviderArgs): Promise<ProviderResult
     throw await providerHttpError('OpenAI/OpenRouter', res)
   }
 
-  const data = (await res.json().catch(() => null)) as OpenAiResponse | null
-  const text = data?.choices?.[0]?.message?.content
-  if (!text || typeof text !== 'string' || !text.trim()) {
+  const data = (await res.json().catch(() => null)) as OpenAiResponse | any
+
+  // OpenRouter/OpenAI-compatible responses can vary in shape. Try a
+  // series of fallbacks to extract assistant text robustly:
+  //  - choices[0].message.content (OpenAI chat)
+  //  - choices[0].text (legacy OpenAI)
+  //  - output (string) or output array
+  //  - result.output[0].content (some routers)
+  //  - output_text
+  let text: string | null = null
+
+  if (data) {
+    // choices -> message.content
+    text = data?.choices?.[0]?.message?.content ?? data?.choices?.[0]?.text ?? null
+
+    // top-level output string
+    if (!text && typeof data.output === 'string') text = data.output
+
+    // output as array of blocks
+    if (!text && Array.isArray(data.output)) {
+      text = data.output
+        .map((b: any) => (typeof b === 'string' ? b : b?.content ?? ''))
+        .join('')
+        .trim()
+    }
+
+    // some routers nest under result.output
+    if (!text && Array.isArray(data?.result?.output)) {
+      text = data.result.output
+        .map((b: any) => (typeof b === 'string' ? b : b?.content ?? ''))
+        .join('')
+        .trim()
+    }
+
+    // older compatibility field
+    if (!text && typeof data.output_text === 'string') text = data.output_text
+
+    if (typeof text === 'string') text = text.trim()
+  }
+
+  if (!text) {
     throw new AiError('OpenRouter returned an empty response.', {
       code: 'empty_response',
     })
